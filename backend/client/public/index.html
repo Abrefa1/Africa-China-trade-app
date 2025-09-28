@@ -1,16 +1,37 @@
+
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Africa-China Trading Platform</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <script>
-    Pi.init({ version: "2.0", sandbox: true });
-  </script>
-</head>
-<body>
-  <div id="root"></div>
-  <script src="../src/index.js" type="module"></script>
-</body>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Africa–China Trade App</title>
+  </head>
+  <body>
+    <h1>Welcome to the Africa–China Trade App</h1>
+    <p>Buyers, sellers and warehouse owners connect here</p>
+
+    <!-- Pi SDK -->
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+    <script>
+      Pi.init({ version: "2.0", sandbox: true }); // sandbox:true for testing
+      const scopes = ['payments','username'];
+
+      function onIncompletePaymentFound(payment) { 
+          console.log('incomplete payment found')
+          const paymentId = payment.identifier;
+          const txid = payment.transaction.txid;
+          fetch('/payments/complete', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({paymentId, txid})
+          });
+      };
+
+      Pi.authenticate(scopes, onIncompletePaymentFound)
+        .then(auth => {
+          console.log("Hi there! You're ready to make payments!");
+          window.piAccessToken = auth.accessToken; // store for later
+        })
+        .catch(error => console.error(error));
+    </script>
+  </body>
 </html>
